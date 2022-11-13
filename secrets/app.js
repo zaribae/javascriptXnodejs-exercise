@@ -66,17 +66,17 @@ passport.use(new GoogleStrategy({
   }
 ));
 
-// passport.use(new FacebookStrategy({
-//     clientID: process.env.FACEBOOK_APP_ID,
-//     clientSecret: process.env.FACEBOOK_APP_SECRET,
-//     callbackURL: "http://localhost:8000/auth/facebook/secrets"
-//   },
-//   function(accessToken, refreshToken, profile, cb) {
-//     User.findOrCreate({username: profile.displayName, facebookId: profile.id }, function (err, user) {
-//       return cb(err, user);
-//     });
-//   }
-// ));
+passport.use(new FacebookStrategy({
+    clientID: process.env.FACEBOOK_APP_ID,
+    clientSecret: process.env.FACEBOOK_APP_SECRET,
+    callbackURL: "http://localhost:8000/auth/facebook/secrets"
+  },
+  function(accessToken, refreshToken, profile, cb) {
+    User.findOrCreate({username: profile.displayName, facebookId: profile.id }, function (err, user) {
+      return cb(err, user);
+    });
+  }
+));
 
 app.get('/', (req, res) => {
     res.render("home");
