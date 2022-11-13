@@ -34,7 +34,8 @@ const userSchema = new mongoose.Schema ({
     email: String,
     password: String,
     googleId: String,
-    facebookId: String
+    facebookId: String,
+    secret: String
 });
 
 userSchema.plugin(passportLocalMongoose);
@@ -115,11 +116,21 @@ app.get('/register', (req, res) => {
 })
 
 app.get('/secrets', (req, res) => {
-    if (req.isAuthenticated()) {
-        res.render("secrets");
-    } else {
-        res.render("login");
-    }
+    User.find({"secret": {$ne: null}}, (err, foundUsers) => {
+      if (err) {
+        res.send(err);
+      } else {
+        res.render('secrets', {usersWithSecret: foundUsers});
+      }
+    })
+})
+
+app.get('/submit', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render("submit");
+  } else {
+      res.redirect("/login");
+  }
 })
 
 app.get('/logout', (req, res) => {
@@ -157,6 +168,26 @@ app.post('/login', (req, res) => {
         }
     })
 })
+
+app.post('/submit', (req, res) => {
+  const userSecret = req.body.secret;
+
+  User.findById(req.user.id, (err, foundUser) => {
+    if (err) {
+      res.send(err);
+    } else {
+      if (foundUser) {
+        foundUser.secret = userSecret;
+        foundUser.save((err) => {
+          res.redirect('/secrets');
+        })
+      }
+    }
+
+  })
+
+})
+
 
 app.listen(8000, () => {
     console.log("Server started on port 8000");
